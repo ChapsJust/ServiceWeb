@@ -1,0 +1,623 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Examen Final - API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/",
+      "description": "Serveur de développement local"
+    },
+    {
+      "url": "http://api.votre-domaine.com/",
+      "description": "Serveur de production"
+    }
+  ],
+  "paths": {
+    "/utilisateurs/create": {
+      "post": {
+        "summary": "Création d'un utilisateur",
+        "tags": ["Utilisateurs"],
+        "requestBody": {
+          "description": "Informations de l'utilisateur",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nom": {
+                    "type": "string"
+                  },
+                  "prenom": {
+                    "type": "string"
+                  },
+                  "courriel": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": ["nom", "prenom", "courriel", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/utilisateurs/generateApiKey": {
+      "post": {
+        "summary": "Générer une nouvelle clé API pour l'utilisateur",
+        "tags": ["Utilisateurs"],
+        "requestBody": {
+          "description": "Identification de l'utilisateur pour la clé API",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Clé API générée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Identification invalide"
+          },
+          "404": {
+            "description": "Utilisateur non trouvé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/taches/all": {
+      "get": {
+        "summary": "Chercher toutes les taches de l'utilisateur",
+        "tags": ["Taches"],
+        "security": [
+          {
+            "CleApiAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Toutes les taches de l'utilisateur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tache"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/taches/": {
+      "get": {
+        "summary": "Récupérer les tâches non complètes",
+        "tags": ["Taches"],
+        "security": [
+          {
+            "CleApiAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des tâches non complètes récupérée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tache"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/taches/{id}/details": {
+      "get": {
+        "summary": "Récupérer les détails d'une tâche spécifique",
+        "tags": ["Taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la tâche",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détails de la tâche récupérés avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tache"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tâche non trouvée"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/taches/ajouter": {
+      "post": {
+        "summary": "Ajouter une nouvelle tâche",
+        "tags": ["Taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "requestBody": {
+          "description": "Données de la tâche à ajouter",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tache"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tâche créée avec succès"
+          },
+          "400": {
+            "description": "Données invalides fournies"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/taches/update/{id}": {
+      "put": {
+        "summary": "Mettre à jour une tâche spécifique",
+        "tags": ["Taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche à mettre à jour"
+          }
+        ],
+        "requestBody": {
+          "description": "Données de la tâche à mettre à jour",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTache"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tâche mise à jour avec succès"
+          },
+          "404": {
+            "description": "Tâche non trouvée"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/taches/statut/{id}": {
+      "put": {
+        "summary": "Mettre à jour le statut d'une tâche",
+        "tags": ["Taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche dont le statut doit être mis à jour"
+          }
+        ],
+        "requestBody": {
+          "description": "Nouveau statut de la tâche",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "complete": {
+                    "type": "integer",
+                    "description": "Le nouveau statut de la tâche (complétée ou non)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Statut de la tâche mis à jour avec succès"
+          },
+          "404": {
+            "description": "Tâche non trouvée"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/taches/delete/{id}": {
+      "delete": {
+        "summary": "Supprimer une tâche",
+        "tags": ["Taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche à supprimer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tâche supprimée avec succès"
+          },
+          "404": {
+            "description": "Tâche non trouvée"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/sous-taches/ajouter": {
+      "post": {
+        "summary": "Ajouter une sous-tâche",
+        "tags": ["Sous-taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "requestBody": {
+          "description": "Données de la sous-tâche à ajouter",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titre": {
+                    "type": "string"
+                  },
+                  "complete": {
+                    "type": "integer"
+                  },
+                  "tache_id": {
+                    "type": "integer"
+                  }
+                },
+                "required": ["titre", "complete", "tache_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sous-tâche créée avec succès"
+          },
+          "400": {
+            "description": "Données invalides fournies"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/sous-taches/update/{id}": {
+      "put": {
+        "summary": "Mettre à jour une sous-tâche",
+        "tags": ["Sous-taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la sous-tâche à mettre à jour"
+          }
+        ],
+        "requestBody": {
+          "description": "Données de la sous-tâche à mettre à jour",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titre": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sous-tâche mise à jour avec succès"
+          },
+          "404": {
+            "description": "Sous-tâche non trouvée"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/sous-taches/statut/{id}": {
+      "put": {
+        "summary": "Mettre à jour le statut d'une sous-tâche",
+        "tags": ["Sous-taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la sous-tâche dont le statut doit être mis à jour"
+          }
+        ],
+        "requestBody": {
+          "description": "Nouveau statut de la sous-tâche",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "complete": {
+                    "type": "integer",
+                    "description": "Le nouveau statut de la sous-tâche (complétée ou non)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Statut de la sous-tâche mis à jour avec succès"
+          },
+          "404": {
+            "description": "Sous-tâche non trouvée"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    },
+    "/sous-taches/delete/{id}": {
+      "delete": {
+        "summary": "Supprimer une sous-tâche",
+        "tags": ["Sous-taches"],
+        "security": [{ "CleApiAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la sous-tâche à supprimer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sous-tâche supprimée avec succès"
+          },
+          "404": {
+            "description": "Sous-tâche non trouvée"
+          },
+          "401": {
+            "description": "Non autorisé"
+          },
+          "500": {
+            "description": "Erreur serveur"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiKeyResponse": {
+        "type": "object",
+        "properties": {
+          "apiKey": {
+            "type": "string"
+          }
+        }
+      },
+      "Tache": {
+        "type": "object",
+        "properties": {
+          "titre": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date_debut": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "date_echeance": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "complete": {
+            "type": "integer"
+          }
+        }
+      },
+      "UpdateTache": {
+        "type": "object",
+        "properties": {
+          "titre": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date_debut": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "date_echeance": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SousTache": {
+        "type": "object",
+        "properties": {
+          "titre": {
+            "type": "string"
+          },
+          "complete": {
+            "type": "integer"
+          },
+          "tache_id": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "CleApiAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  }
+}
